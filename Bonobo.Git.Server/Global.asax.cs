@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -90,7 +89,7 @@ namespace Bonobo.Git.Server
             {
                 if(!connectionstring.ConnectionString.ToLowerInvariant().Contains("binaryguid=false"))
                 {
-                    Trace.WriteLine("Please ensure that the sqlite connection string contains 'BinaryGUID=false;'.");
+                    Log.Error("Please ensure that the sqlite connection string contains 'BinaryGUID=false;'.");
                     throw new ConfigurationErrorsException("Please ensure that the sqlite connection string contains 'BinaryGUID=false;'.");
                 }
             }
@@ -104,7 +103,6 @@ namespace Bonobo.Git.Server
             }
             catch (Exception ex)
             {
-                Trace.WriteLine("StartupException " + ex);
                 Log.Error(ex, "Startup exception");
                 throw;
             }
@@ -114,8 +112,13 @@ namespace Bonobo.Git.Server
         {
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.AppSettings()
-                .WriteTo.RollingFile(Path.Combine(HostingEnvironment.MapPath(ConfigurationManager.AppSettings["LogDirectory"]), "log-{Date}.txt"))
+                .WriteTo.RollingFile(GetLogFileNameFormat())
                 .CreateLogger();
+        }
+
+        public static string GetLogFileNameFormat()
+        {
+            return Path.Combine(HostingEnvironment.MapPath(ConfigurationManager.AppSettings["LogDirectory"]), "log-{Date}.txt");
         }
 
         private static void RegisterDependencyResolver()
@@ -272,7 +275,6 @@ namespace Bonobo.Git.Server
                     if (exception != null)
                     {
                         Log.Error(exception, "Exception caught in Global.asax1");
-                        Trace.TraceError("Error occured and caught in Global.asax - {0}", exception.ToString());
                     }
                 }
                 else
@@ -285,12 +287,10 @@ namespace Bonobo.Git.Server
                         case 500:
                             routeData.Values.Add("action", "ServerError");
                             Log.Error(exception, "500 Exception caught in Global.asax");
-                            Trace.TraceError("Server Error occured and caught in Global.asax - {0}", exception.ToString());
                             break;
                         default:
                             routeData.Values.Add("action", "Error");
                             Log.Error(exception, "Exception caught in Global.asax (code {Code})", httpException.GetHttpCode());
-                            Trace.TraceError("Error occured and caught in Global.asax - {0}", exception.ToString());
                             break;
                     }
                 }
