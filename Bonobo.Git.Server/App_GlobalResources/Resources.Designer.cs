@@ -567,11 +567,7 @@ namespace Bonobo.Git.Server.App_GlobalResources {
         }
         
         /// <summary>
-<<<<<<< .mine
         ///   Looks up a localized string similar to Thanks!.
-=======
-        ///   查找类似 Thanks! 的本地化字符串。
->>>>>>> .theirs
         /// </summary>
         public static string Home_About_Thanks {
             get {
